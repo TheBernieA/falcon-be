@@ -1,0 +1,8 @@
+pip install MetaTrader5
+pip install flask
+pip install flask-cors
+pip install pandas
+pip install requests
+pip install openai
+pip install scikit-learn
+pip install tensorflow

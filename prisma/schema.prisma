@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String            @id @default(cuid())
+  login              Int               @unique
+  password           String
+  server             String
+  trades             Trade[]
+  symbols            Symbol[]
+  feedback           Feedback[]
+  strategySettings   StrategySettings?
+  strategySettingsId Int? // This field links to StrategySettings
+  createdAt          DateTime          @default(now())
+  BotStatus          BotStatus[]
+}
+
+model Symbol {
+  id     Int    @id @default(autoincrement())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  symbol String
+}
+
+model Trade {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  symbol    String
+  volume    Float
+  action    String
+  timestamp DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  rating    Int
+  comment   String?
+  timestamp DateTime @default(now())
+  symbol    String // Added symbol field
+  User      User     @relation(fields: [userId], references: [id])
+}
+
+model StrategySettings {
+  id                Int    @id @default(autoincrement())
+  userId            String @unique
+  shortTermMAPeriod Int
+  longTermMAPeriod  Int
+  rsiPeriod         Int
+  macdShortPeriod   Int
+  macdLongPeriod    Int
+  macdSignalPeriod  Int
+  User              User   @relation(fields: [userId], references: [id])
+}
+
+model BotStatus {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  isActive    Boolean  @default(false)
+  isAnalyzing Boolean  @default(false)
+  message     String? // Optional field for additional messages
+  updatedAt   DateTime @updatedAt // Automatically updated to the current date and time
+}
